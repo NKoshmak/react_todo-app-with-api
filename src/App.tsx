@@ -145,33 +145,41 @@ export const App: React.FC = () => {
       });
   };
 
-  const toggleTodoStatus = async (todo: Todo) => {
+  const toggleTodoStatus = async (toggleTodo: Todo) => {
     try {
+      setTodoIds(prevIds => [...prevIds, toggleTodo.id]);
       setIsLoading(true);
-      const changedTodo = { ...todo, completed: !todo.completed };
+
+      const changedTodo = { ...toggleTodo, completed: !toggleTodo.completed };
 
       updateTodo(changedTodo);
+    } catch (error) {
+      setErrorMessage('Unable to update todo status');
     } finally {
+      setTodoIds(prevIds => prevIds.filter(tId => tId !== toggleTodo.id));
       setIsLoading(false);
     }
   };
 
   const toggleAllTodos = async () => {
-    try {
+    const areAllCompleted = todos.every(todo => todo.completed);
+
+    const updatedTodos = todos.map(todo => ({
+      ...todo,
+      completed: !areAllCompleted,
+    }));
+
+    for (const todo of updatedTodos) {
       setIsLoading(true);
-
-      const areAllCompleted = todos.every(todo => todo.completed);
-
-      const updatedTodos = todos.map(todo => ({
-        ...todo,
-        completed: !areAllCompleted,
-      }));
-
-      updatedTodos.forEach(todo => updateTodo(todo));
-    } catch {
-      setErrorMessage('Unable to update a todo');
-    } finally {
-      setIsLoading(false);
+      setTodoIds(prevIds => [...prevIds, todo.id]);
+      try {
+        updateTodo(todo);
+      } catch {
+        setErrorMessage('Unable to update todos');
+      } finally {
+        setTodoIds(prevIds => prevIds.filter(tId => tId !== todo.id));
+        setIsLoading(false);
+      }
     }
   };
 
@@ -220,7 +228,7 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           toggleTodoStatus={toggleTodoStatus}
           isLoading={isLoading}
-          setIsLoading={setIsLoading}
+          setTodoIds={setTodoIds}
         />
         {todos.length > 0 && (
           <Footer

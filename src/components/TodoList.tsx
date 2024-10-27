@@ -9,7 +9,7 @@ type Props = {
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
   isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
+  setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 const TodoList: React.FC<Props> = ({
@@ -19,7 +19,7 @@ const TodoList: React.FC<Props> = ({
   tempTodo,
   toggleTodoStatus,
   isLoading,
-  setIsLoading,
+  setTodoIds,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -30,7 +30,7 @@ const TodoList: React.FC<Props> = ({
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
         isLoading={isLoading}
-        setIsLoading={setIsLoading}
+        setTodoIds={setTodoIds}
       />
     ))}
 
@@ -43,7 +43,7 @@ const TodoList: React.FC<Props> = ({
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
         isLoading={isLoading}
-        setIsLoading={setIsLoading}
+        setTodoIds={setTodoIds}
       />
     )}
   </section>

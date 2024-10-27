@@ -8,10 +8,10 @@ type Props = {
   todo: Todo;
   deleteTodo: (id: number) => void;
   todoIds: number[];
+  setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
   isLoading: boolean;
-  setIsLoading: (value: boolean) => void;
 };
 
 const TodoItem: React.FC<Props> = ({
@@ -20,8 +20,7 @@ const TodoItem: React.FC<Props> = ({
   todoIds,
   tempTodo,
   toggleTodoStatus,
-  isLoading,
-  setIsLoading,
+  setTodoIds,
 }) => {
   const { completed, id, title } = todo;
 
@@ -41,7 +40,7 @@ const TodoItem: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoading(true);
+    setTodoIds(prevIds => [...prevIds, id]);
 
     const trimmedTitle = editedTitle.trim();
 
@@ -50,11 +49,12 @@ const TodoItem: React.FC<Props> = ({
     } else if (trimmedTitle !== todo.title) {
       const updatedTodo = { ...todo, title: trimmedTitle };
 
-      updateTodo(updatedTodo);
+      updateTodo(updatedTodo).finally(() => {
+        setTodoIds(prevIds => prevIds.filter(tId => tId !== todo.id));
+      });
     }
 
     setIsEditing(false);
-    setIsLoading(false);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
@@ -80,7 +80,7 @@ const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={completed}
-          disabled={!!tempTodo || isLoading}
+          disabled={!!tempTodo}
           onChange={() => toggleTodoStatus(todo)}
         />
       </label>
@@ -122,7 +122,7 @@ const TodoItem: React.FC<Props> = ({
       <div
         data-cy="TodoLoader"
         className={cn('modal overlay', {
-          'is-active': todoIds.includes(id) || tempTodo || isLoading,
+          'is-active': todoIds.includes(id) || tempTodo,
         })}
       >
         <div className="modal-background has-background-white-ter" />
