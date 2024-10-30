@@ -8,10 +8,9 @@ type Props = {
   todo: Todo;
   deleteTodo: (id: number) => void;
   todoIds: number[];
-  setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
-  isLoading: boolean;
+  setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 const TodoItem: React.FC<Props> = ({
@@ -40,7 +39,7 @@ const TodoItem: React.FC<Props> = ({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setTodoIds(prevIds => [...prevIds, id]);
+    setTodoIds(prevIds => [...prevIds, todo.id]);
 
     const trimmedTitle = editedTitle.trim();
 
@@ -49,9 +48,9 @@ const TodoItem: React.FC<Props> = ({
     } else if (trimmedTitle !== todo.title) {
       const updatedTodo = { ...todo, title: trimmedTitle };
 
-      updateTodo(updatedTodo).finally(() => {
-        setTodoIds(prevIds => prevIds.filter(tId => tId !== todo.id));
-      });
+      updateTodo(updatedTodo).finally(() =>
+        setTodoIds(prevIds => prevIds.filter(t => t !== todo.id)),
+      );
     }
 
     setIsEditing(false);
@@ -92,8 +91,8 @@ const TodoItem: React.FC<Props> = ({
           onKeyUp={handleKeyUp}
         >
           <input
-            // data-cy="TodoStatus"
-            // className="todo__status"
+            data-cy="TodoTitleField"
+            className="todo__title-field"
             type="text"
             ref={inputRef}
             value={editedTitle}

@@ -122,8 +122,8 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setTodoIds(prevIds => [...prevIds, updatedTodo.id]);
     setIsLoading(true);
+    setTodoIds(prevIds => [...prevIds, updatedTodo.id]);
 
     todoService
       .updateTodo(updatedTodo)
@@ -146,57 +146,41 @@ export const App: React.FC = () => {
   };
 
   const toggleTodoStatus = async (toggleTodo: Todo) => {
-    try {
-      setTodoIds(prevIds => [...prevIds, toggleTodo.id]);
-      setIsLoading(true);
+    const changedTodo = { ...toggleTodo, completed: !toggleTodo.completed };
 
-      const changedTodo = { ...toggleTodo, completed: !toggleTodo.completed };
-
-      updateTodo(changedTodo);
-    } catch (error) {
-      setErrorMessage('Unable to update todo status');
-    } finally {
-      setTodoIds(prevIds => prevIds.filter(tId => tId !== toggleTodo.id));
-      setIsLoading(false);
-    }
+    updateTodo(changedTodo);
   };
 
-  const toggleAllTodos = async () => {
-    const areAllCompleted = todos.every(todo => todo.completed);
+  const toggleAllTodos = () => {
+    let toggledTodos = todos.filter(todo => !todo.completed);
 
-    const updatedTodos = todos.map(todo => ({
-      ...todo,
-      completed: !areAllCompleted,
-    }));
-
-    for (const todo of updatedTodos) {
-      setIsLoading(true);
-      setTodoIds(prevIds => [...prevIds, todo.id]);
-      try {
-        updateTodo(todo);
-      } catch {
-        setErrorMessage('Unable to update todos');
-      } finally {
-        setTodoIds(prevIds => prevIds.filter(tId => tId !== todo.id));
-        setIsLoading(false);
-      }
+    if (toggledTodos.length === 0) {
+      toggledTodos = todos.map(todo => ({
+        ...todo,
+        completed: false,
+      }));
+    } else {
+      toggledTodos = toggledTodos.map(todo => ({
+        ...todo,
+        completed: true,
+      }));
     }
+
+    toggledTodos.map(todo => updateTodo(todo));
   };
 
-  const deleteAllCompleted = async () => {
-    try {
-      setIsLoading(true);
-
-      if (completedTodos.length === 0) {
-        return;
-      }
-
-      completedTodos.map(todo => deleteTodo(todo.id));
-
-      setTodos(todos.filter(todo => !todo.completed));
-    } finally {
-      setIsLoading(false);
+  const deleteAllCompleted = () => {
+    if (completedTodos.length === 0) {
+      return;
     }
+
+    completedTodos.map(todo => {
+      deleteTodo(todo.id)
+        .then(() => {
+          setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
+        })
+        .catch(() => setErrorMessage('Unable to delete a todo'));
+    });
   };
 
   if (errorMessage) {
@@ -227,7 +211,6 @@ export const App: React.FC = () => {
           todoIds={todoIds}
           tempTodo={tempTodo}
           toggleTodoStatus={toggleTodoStatus}
-          isLoading={isLoading}
           setTodoIds={setTodoIds}
         />
         {todos.length > 0 && (

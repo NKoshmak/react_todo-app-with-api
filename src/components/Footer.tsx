@@ -30,7 +30,7 @@ const Footer: React.FC<Props> = ({
           className={cn('filter__link', {
             selected: type === filterType,
           })}
-          data-cy={`FilterLink ${type}`}
+          data-cy={`FilterLink${type}`}
           onClick={() => setFilterType(type)}
         >
           {type}

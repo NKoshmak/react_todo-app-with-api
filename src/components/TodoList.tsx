@@ -8,7 +8,6 @@ type Props = {
   todoIds: number[];
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
-  isLoading: boolean;
   setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -18,7 +17,6 @@ const TodoList: React.FC<Props> = ({
   todoIds,
   tempTodo,
   toggleTodoStatus,
-  isLoading,
   setTodoIds,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
@@ -29,7 +27,6 @@ const TodoList: React.FC<Props> = ({
         deleteTodo={deleteTodo}
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
-        isLoading={isLoading}
         setTodoIds={setTodoIds}
       />
     ))}
@@ -42,7 +39,6 @@ const TodoList: React.FC<Props> = ({
         deleteTodo={deleteTodo}
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
-        isLoading={isLoading}
         setTodoIds={setTodoIds}
       />
     )}
