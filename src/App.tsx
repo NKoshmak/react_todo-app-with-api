@@ -69,7 +69,6 @@ export const App: React.FC = () => {
         setIsTodoDeleted(true);
       })
       .catch(() => {
-        setTodos(todos);
         setErrorMessage('Unable to delete a todo');
       })
       .finally(() => {
@@ -175,11 +174,16 @@ export const App: React.FC = () => {
     }
 
     completedTodos.map(todo => {
-      deleteTodo(todo.id)
+      setTodoIds(prevIds => [...prevIds, todo.id]);
+      todoService
+        .deleteTodo(todo.id)
         .then(() => {
           setTodos(prevTodos => prevTodos.filter(t => t.id !== todo.id));
         })
-        .catch(() => setErrorMessage('Unable to delete a todo'));
+        .catch(() => setErrorMessage('Unable to delete a todo'))
+        .finally(() =>
+          setTodoIds(prevIds => prevIds.filter(todoId => todoId !== todo.id)),
+        );
     });
   };
 
@@ -204,6 +208,7 @@ export const App: React.FC = () => {
           isTodoDeleted={isTodoDeleted}
           toggleAllTodos={toggleAllTodos}
           unCompletedTodos={unCompletedTodos}
+          todos={todos}
         />
         <TodoList
           todos={visibleTodos}

@@ -43,7 +43,7 @@ const TodoItem: React.FC<Props> = ({
 
     const trimmedTitle = editedTitle.trim();
 
-    if (trimmedTitle === '') {
+    if (!trimmedTitle) {
       deleteTodo(todo.id);
     } else if (trimmedTitle !== todo.title) {
       const updatedTodo = { ...todo, title: trimmedTitle };
@@ -67,6 +67,12 @@ const TodoItem: React.FC<Props> = ({
     setEditedTitle(event.target.value);
   };
 
+  // const handleBlur = () => {
+  //   if (isEditing) {
+  //     setIsEditing(false);
+  //   }
+  // };
+
   return (
     <div
       data-cy="Todo"
@@ -85,38 +91,38 @@ const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form
-          onSubmit={handleSubmit}
-          onBlur={handleSubmit}
-          onKeyUp={handleKeyUp}
-        >
+        <form onSubmit={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             className="todo__title-field"
+            placeholder="Empty todo will be deleted"
             type="text"
             ref={inputRef}
             value={editedTitle}
             onChange={handleTitleChange}
+            onBlur={handleSubmit}
+            onKeyUp={handleKeyUp}
           />
         </form>
       ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onDoubleClick={handleDoubleClick}
-        >
-          {editedTitle}
-        </span>
+        <>
+          <span
+            data-cy="TodoTitle"
+            className="todo__title"
+            onDoubleClick={handleDoubleClick}
+          >
+            {editedTitle.trim()}
+          </span>
+          <button
+            type="button"
+            className="todo__remove"
+            data-cy="TodoDelete"
+            onClick={() => deleteTodo(id)}
+          >
+            ×
+          </button>
+        </>
       )}
-
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => deleteTodo(id)}
-      >
-        ×
-      </button>
 
       <div
         data-cy="TodoLoader"

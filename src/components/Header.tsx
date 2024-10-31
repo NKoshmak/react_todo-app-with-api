@@ -11,6 +11,7 @@ type Props = {
   isTodoDeleted: boolean;
   toggleAllTodos: () => void;
   unCompletedTodos: Todo[];
+  todos: Todo[];
 };
 
 const Header: React.FC<Props> = ({
@@ -22,6 +23,7 @@ const Header: React.FC<Props> = ({
   isTodoDeleted,
   toggleAllTodos,
   unCompletedTodos,
+  todos,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -29,18 +31,21 @@ const Header: React.FC<Props> = ({
     if (inputRef.current && !isSubmitting && !isLoading) {
       inputRef.current.focus();
     }
-  }, [newTodo, isSubmitting, isLoading, isTodoDeleted]);
+  }, [newTodo, isSubmitting, isLoading, isTodoDeleted, todos]);
 
   return (
     <header className="todoapp__header">
-      <button
-        type="button"
-        className={cn('todoapp__toggle-all', {
-          active: unCompletedTodos.length === 0,
-        })}
-        data-cy="ToggleAllButton"
-        onClick={toggleAllTodos}
-      />
+      {todos.length !== 0 && (
+        <button
+          type="button"
+          className={cn('todoapp__toggle-all', {
+            active: unCompletedTodos.length === 0,
+          })}
+          data-cy="ToggleAllButton"
+          onClick={toggleAllTodos}
+        />
+      )}
+
       <form onSubmit={handleSubmit}>
         <input
           ref={inputRef}
