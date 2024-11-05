@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const [todoIds, setTodoIds] = useState<number[]>([]);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isTodoDeleted, setIsTodoDeleted] = useState(false);
+  const [isTodoUpdated, setIsTodoUpdated] = useState(false);
 
   const visibleTodos = getFilteredTodos(todos, filterType);
 
@@ -57,7 +58,6 @@ export const App: React.FC = () => {
 
   const deleteTodo = (todoId: number) => {
     setTodoIds(prevIds => [...prevIds, todoId]);
-    setIsLoading(true);
 
     return todoService
       .deleteTodo(todoId)
@@ -73,13 +73,10 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setTodoIds(prevIds => prevIds.filter(tId => todoId !== tId));
-        setIsLoading(false);
       });
   };
 
   const addTodo = (todo: Todo) => {
-    setIsLoading(true);
-
     return todoService
       .createTodo(todo)
       .then(newTodoData => {
@@ -88,8 +85,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage('Unable to add a todo');
-      })
-      .finally(() => setIsLoading(false));
+      });
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -121,7 +117,6 @@ export const App: React.FC = () => {
   };
 
   const updateTodo = (updatedTodo: Todo) => {
-    setIsLoading(true);
     setTodoIds(prevIds => [...prevIds, updatedTodo.id]);
 
     todoService
@@ -135,16 +130,18 @@ export const App: React.FC = () => {
 
           return newTodos;
         });
+
+        setIsTodoUpdated(true);
       })
 
       .catch(() => setErrorMessage('Unable to update a todo'))
       .finally(() => {
         setTodoIds(prevIds => prevIds.filter(tId => updatedTodo.id !== tId));
-        setIsLoading(false);
+        setIsTodoUpdated(false);
       });
   };
 
-  const toggleTodoStatus = async (toggleTodo: Todo) => {
+  const toggleTodoStatus = (toggleTodo: Todo) => {
     const changedTodo = { ...toggleTodo, completed: !toggleTodo.completed };
 
     updateTodo(changedTodo);
@@ -217,6 +214,8 @@ export const App: React.FC = () => {
           tempTodo={tempTodo}
           toggleTodoStatus={toggleTodoStatus}
           setTodoIds={setTodoIds}
+          setErrorMessage={setErrorMessage}
+          isTodoUpdated={isTodoUpdated}
         />
         {todos.length > 0 && (
           <Footer

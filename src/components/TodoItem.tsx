@@ -11,6 +11,8 @@ type Props = {
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
   setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setErrorMessage: (value: string | null) => void;
+  isTodoUpdated: boolean;
 };
 
 const TodoItem: React.FC<Props> = ({
@@ -20,12 +22,20 @@ const TodoItem: React.FC<Props> = ({
   tempTodo,
   toggleTodoStatus,
   setTodoIds,
+  setErrorMessage,
+  isTodoUpdated,
 }) => {
   const { completed, id, title } = todo;
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isTodoUpdated) {
+      setIsEditing(false);
+    }
+  }, [isTodoUpdated]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -48,12 +58,20 @@ const TodoItem: React.FC<Props> = ({
     } else if (trimmedTitle !== todo.title) {
       const updatedTodo = { ...todo, title: trimmedTitle };
 
-      updateTodo(updatedTodo).finally(() =>
-        setTodoIds(prevIds => prevIds.filter(t => t !== todo.id)),
-      );
+      updateTodo(updatedTodo)
+        .then(() => {
+          setEditedTitle(trimmedTitle);
+          setIsEditing(false);
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+        })
+        .finally(() =>
+          setTodoIds(prevIds => prevIds.filter(t => t !== todo.id)),
+        );
+    } else {
+      setIsEditing(false);
     }
-
-    setIsEditing(false);
   };
 
   const handleKeyUp = (event: React.KeyboardEvent) => {
@@ -66,12 +84,6 @@ const TodoItem: React.FC<Props> = ({
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditedTitle(event.target.value);
   };
-
-  // const handleBlur = () => {
-  //   if (isEditing) {
-  //     setIsEditing(false);
-  //   }
-  // };
 
   return (
     <div
@@ -91,7 +103,7 @@ const TodoItem: React.FC<Props> = ({
       </label>
 
       {isEditing ? (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} onBlur={handleSubmit}>
           <input
             data-cy="TodoTitleField"
             className="todo__title-field"
@@ -100,7 +112,6 @@ const TodoItem: React.FC<Props> = ({
             ref={inputRef}
             value={editedTitle}
             onChange={handleTitleChange}
-            onBlur={handleSubmit}
             onKeyUp={handleKeyUp}
           />
         </form>

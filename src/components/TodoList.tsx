@@ -9,6 +9,8 @@ type Props = {
   tempTodo?: Todo | null;
   toggleTodoStatus: (todo: Todo) => void;
   setTodoIds: React.Dispatch<React.SetStateAction<number[]>>;
+  setErrorMessage: (value: string | null) => void;
+  isTodoUpdated: boolean;
 };
 
 const TodoList: React.FC<Props> = ({
@@ -18,6 +20,8 @@ const TodoList: React.FC<Props> = ({
   tempTodo,
   toggleTodoStatus,
   setTodoIds,
+  setErrorMessage,
+  isTodoUpdated,
 }) => (
   <section className="todoapp__main" data-cy="TodoList">
     {todos.map(todo => (
@@ -28,6 +32,8 @@ const TodoList: React.FC<Props> = ({
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
         setTodoIds={setTodoIds}
+        setErrorMessage={setErrorMessage}
+        isTodoUpdated={isTodoUpdated}
       />
     ))}
 
@@ -40,6 +46,8 @@ const TodoList: React.FC<Props> = ({
         todoIds={todoIds}
         toggleTodoStatus={toggleTodoStatus}
         setTodoIds={setTodoIds}
+        setErrorMessage={setErrorMessage}
+        isTodoUpdated={isTodoUpdated}
       />
     )}
   </section>
